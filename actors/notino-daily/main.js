@@ -38,7 +38,8 @@ Apify.main(async () => {
     development = false,
     proxyGroups = ["CZECH_LUMINATI"],
     maxConcurrency = 10,
-    maxRequestRetries = 3
+    maxRequestRetries = 3,
+    root_url = null
   } = input ?? {};
   if (debug) {
     log.setLevel(Apify.utils.log.LEVELS.DEBUG);
@@ -52,22 +53,26 @@ Apify.main(async () => {
 
   const requestQueue = await Apify.openRequestQueue();
   if (type === BF) {
+    if(root_url === null) {
+      root_url = country === COUNTRY.CZ ? BASE_URL_CZ_BF : BASE_URL_SK_BF;
+    }
     await requestQueue.addRequest({
-      url: country === COUNTRY.CZ ? BASE_URL_CZ_BF : BASE_URL_SK_BF,
+      url: root_url,
       userData: {
         label: BF
       }
     });
   } else if (type === "TEST") {
-    const rootUrl = country === COUNTRY.CZ ? BASE_URL : BASE_URL_SK;
     await requestQueue.addRequest({
       url: "https://www.notino.cz/kosmetika/pletova-kosmetika/pletove-kremy/",
       userData: { label: CATEGORY_PAGE }
     });
   } else {
-    const rootUrl = country === COUNTRY.CZ ? BASE_URL : BASE_URL_SK;
+    if(root_url === null) {
+      root_url = country === COUNTRY.CZ ? BASE_URL : BASE_URL_SK;
+    }
     await requestQueue.addRequest({
-      url: rootUrl,
+      url: root_url,
       userData: { label: HOME_PAGE }
     });
   }
