@@ -31,7 +31,7 @@ Apify.main(async () => {
   const cloudfront = new CloudFrontClient({ region: "eu-central-1" });
 
   const input = await Apify.getInput();
-  const {
+  let {
     country = COUNTRY.CZ,
     type = "FULL",
     debug = false,
