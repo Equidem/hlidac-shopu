@@ -83,6 +83,9 @@ const dig = (o, ...args) => {
 };
 
 const getRootUrl = input => {
+  if('rootUrl' in input)
+    return input.rootUrl;
+
   return !input.country || input.country === COUNTRY.CZ
     ? BASE_URL
     : BASE_URL_SK;
@@ -233,7 +236,7 @@ const handleCategoryPage = async (requestQueue, request, $, input, stats) => {
             const item = {};
             item.itemId = id;
             item.itemUrl =
-              url.search(/notino\.[cz|sk]/) < 0 ? `${rootUrl}${url}` : url;
+              url.search(/notino\.[cz|sk|co\.uk]/) < 0 ? `${rootUrl}${url}` : url;
             item.itemName = jsonData.ecommerce.click.products[0].name;
             item.img = $(this).find("img").attr("data-src");
             item.originalPrice = jsonData.ecommerce.click.products[0].fullPrice;

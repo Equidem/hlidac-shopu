@@ -39,7 +39,7 @@ Apify.main(async () => {
     proxyGroups = ["CZECH_LUMINATI"],
     maxConcurrency = 10,
     maxRequestRetries = 3,
-    root_url = null
+    rootUrl = null
   } = input ?? {};
   if (debug) {
     log.setLevel(Apify.utils.log.LEVELS.DEBUG);
@@ -53,11 +53,11 @@ Apify.main(async () => {
 
   const requestQueue = await Apify.openRequestQueue();
   if (type === BF) {
-    if(root_url === null) {
-      root_url = country === COUNTRY.CZ ? BASE_URL_CZ_BF : BASE_URL_SK_BF;
+    if(rootUrl === null) {
+      rootUrl = country === COUNTRY.CZ ? BASE_URL_CZ_BF : BASE_URL_SK_BF;
     }
     await requestQueue.addRequest({
-      url: root_url,
+      url: rootUrl,
       userData: {
         label: BF
       }
@@ -68,11 +68,11 @@ Apify.main(async () => {
       userData: { label: CATEGORY_PAGE }
     });
   } else {
-    if(root_url === null) {
-      root_url = country === COUNTRY.CZ ? BASE_URL : BASE_URL_SK;
+    if(rootUrl === null) {
+      rootUrl = country === COUNTRY.CZ ? BASE_URL : BASE_URL_SK;
     }
     await requestQueue.addRequest({
-      url: root_url,
+      url: rootUrl,
       userData: { label: HOME_PAGE }
     });
   }
