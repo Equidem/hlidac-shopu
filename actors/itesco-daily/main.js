@@ -16,14 +16,6 @@ const uniqueItems = new Set();
 
 const { log } = Apify.utils;
 
-function getTableName(country, type) {
-  let tableName = country === COUNTRY.CZ ? "itesco" : "itesco_sk";
-  if (type === "BF") {
-    tableName = `${tableName}_bf`;
-  }
-  return tableName;
-}
-
 Apify.main(async () => {
   rollbar.init();
 
@@ -42,7 +34,7 @@ Apify.main(async () => {
   } = input ?? {};
 
   const requestQueue = await Apify.openRequestQueue();
-  const url = country === COUNTRY.CZ ? STARTURLS.CZ : STARTURLS.SK;
+  const url = 'https://www.tesco.com/groceries/en-GB/shop/?include-children=true';
   if (debugLog) {
     Apify.utils.log.setLevel(Apify.utils.log.LEVELS.DEBUG);
   }
@@ -174,25 +166,16 @@ Apify.main(async () => {
                       .trim()
                       .replace(/\s+/g, "")
                   ) / 100;
-                const img =
-                  `https://itesco.${country.toLowerCase()}` +
-                  $(this).find(".product__img-wrapper img").attr("data-src");
                 log.info(`Found  ${itemUrl}`);
                 await Apify.pushData({
                   itemId,
                   itemUrl,
                   itemName,
-                  img,
                   originalPrice,
                   currentPrice,
                   discounted: originalPrice
                     ? originalPrice > currentPrice
-                    : false,
-                  category:
-                    country.toLowerCase() === "cz"
-                      ? ["Akční nabídky"]
-                      : ["Špeciálne ponuky"],
-                  currency: country.toLowerCase() === "cz" ? "CZK" : "EUR"
+                    : false
                 });
               }
             });
@@ -233,14 +216,4 @@ Apify.main(async () => {
   });
   await crawler.run();
   await persistState();
-  if (!development) {
-    await invalidateCDN(
-      cloudfront,
-      "EQYSHWUECAQC9",
-      `itesco.${country.toLowerCase()}`
-    );
-    log.info("invalidated Data CDN");
-    await uploadToKeboola(getTableName(country, type));
-    log.info("upload to Keboola finished");
-  }
 });

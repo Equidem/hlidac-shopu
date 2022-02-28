@@ -1,5 +1,3 @@
-const { S3Client } = require("@aws-sdk/client-s3");
-const s3 = new S3Client({ region: "eu-central-1" });
 const {
   toProduct,
   uploadToS3,
@@ -39,10 +37,7 @@ const findArraysUrl = async (urlsCatHtml, country) => {
     }
   });
 
-  const url =
-    country === COUNTRY.CZ
-      ? "https://nakup.itesco.cz/groceries/cs-CZ/shop"
-      : "https://potravinydomov.itesco.sk/groceries/sk-SK/shop";
+  const url = "https://www.tesco.com/groceries/en-GB/shop";
   arr.map(item => {
     resultArrUrls.push({
       url: `${url}${item}`
@@ -83,10 +78,7 @@ const getProductRedux = (productId, reduxResults) => {
  */
 async function ExtractItems($, country, uniqueItems, stats, request) {
   const itemsArray = [];
-  const rootUrl =
-    country === COUNTRY.CZ
-      ? "https://nakup.itesco.cz"
-      : "https://potravinydomov.itesco.sk";
+  const rootUrl = 'https://www.tesco.com/groceries/en-GB/';
   const category = [];
   if ($(".breadcrumbs ol li")) {
     $(".breadcrumbs ol li").each(function () {
@@ -142,36 +134,6 @@ async function ExtractItems($, country, uniqueItems, stats, request) {
       const productRedux = getProductRedux(result.itemId, resultsData);
       result.itemName = productRedux.title;
 
-      const promotionProduct = $(this).find(".product-promotion .offer-text");
-      if (promotionProduct) {
-        const offer = promotionProduct.text();
-        if (country === COUNTRY.CZ) {
-          result.discounted = !!offer;
-          result.currentPrice =
-            offer !== ""
-              ? formatPrice(offer.split("nyní")[1])
-              : formatPrice(
-                  $(this).find(".price-control-wrapper").text().split(" ")[0]
-                );
-          result.originalPrice =
-            offer !== ""
-              ? formatPrice(offer.replace(/^.+cena|nyní.+/g, ""))
-              : null;
-        } else {
-          result.currentPrice =
-            offer !== ""
-              ? formatPrice(offer.split("teraz")[1])
-              : formatPrice(
-                  $(this).find(".price-control-wrapper").text().split(" ")[0]
-                );
-          const match = offer.match(/(predtým) ([\d+|,]+)/);
-          if (match && match.length === 3) {
-            result.originalPrice = formatPrice(match[2]);
-          }
-          result.discounted = result.originalPrice !== undefined;
-        }
-      }
-
       result.img = productRedux.defaultImageUrl;
       result.inStock = productRedux.status === "AvailableForSale";
 
@@ -186,19 +148,7 @@ async function ExtractItems($, country, uniqueItems, stats, request) {
         }
         result.unitOfMeasure = unitOfMeasure;
       }
-      if (!uniqueItems.has(result.itemId)) {
-        uniqueItems.add(result.itemId);
-        itemsArray.push(result);
-        await Promise.all([
-          uploadToS3(
-            s3,
-            `itesco.${country.toLowerCase()}`,
-            await s3FileName(result),
-            "jsonld",
-            toProduct(result, {})
-          )
-        ]);
-      }
+
     });
   }
 
