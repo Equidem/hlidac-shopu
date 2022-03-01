@@ -148,7 +148,10 @@ async function ExtractItems($, country, uniqueItems, stats, request) {
         }
         result.unitOfMeasure = unitOfMeasure;
       }
-
+      if (!uniqueItems.has(result.itemId)) {
+        uniqueItems.add(result.itemId);
+        itemsArray.push(result);
+      }
     });
   }
 
