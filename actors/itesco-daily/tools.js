@@ -30,8 +30,7 @@ const findArraysUrl = async (urlsCatHtml, country) => {
   });
   let arr = [].concat(childrenArr);
   arr = arr.map(item => {
-    console.log(item);
-    if (item.url.includes("/all")) {
+    if (item.url && item.url.includes("/all")) {
       return item.url;
     } else {
       return item.allUrl;
